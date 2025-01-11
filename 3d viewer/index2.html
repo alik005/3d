@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Model Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #viewer-container {
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        #drop-zone {
+            width: 600px;
+            height: 400px;
+            border: 2px dashed black;
+            margin: 20px auto;
+        }
+
+        iframe {
+            width: 600px;
+            height: 400px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="viewer-container">
+        <h2>3D Model Viewer</h2>
+        <div id="drop-zone">Drag and Drop Model Here</div>
+        <iframe id="3d-viewer"></iframe>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        function openModel() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const modelLink = urlParams.get('model');
+
+            if (modelLink) {
+                const iframe = document.getElementById('3d-viewer');
+                iframe.src = modelLink; // Load the model link in the iframe
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', openModel);
+
+        // Drag and drop functionality
+        const dropZone = document.getElementById('drop-zone');
+
+        dropZone.addEventListener('dragover', function(event) {
+            event.preventDefault();
+        }, false);
+
+        dropZone.addEventListener('drop', function(event) {
+            event.preventDefault();
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                loadModel(file);
+            }
+        }, false);
+
+        function loadModel(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const loader = new THREE.GLTFLoader();
+                loader.load(e.target.result, function(gltf) {
+                    // Assume `scene` is your THREE.js scene
+                    const scene = new THREE.Scene();
+                    scene.add(gltf.scene);
+                    // Add camera and renderer to render the model
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+ // Get the model link from the URL query parameters
+ const urlParams = new URLSearchParams(window.location.search);
+        const modelId = urlParams.get('model');
+
+        if (modelId) {
+            load3DModel(modelId);  // Call the function to load the model based on the ID
+        } else {
+            alert("No model selected!");
+        }
+
+        // Function to load 3D Model using Google Drive API
+        function load3DModel(modelId) {
+            const fileUrl = `https://drive.google.com/uc?export=view&id=${modelId}`;
+            
+            // Assuming you're using something like Three.js or another 3D library
+            const viewer = document.getElementById('viewer');
+
+            // Example using Three.js (assuming the model is a .obj or .glb file)
+            const loader = new THREE.GLTFLoader();
+            loader.load(fileUrl, function(gltf) {
+                viewer.appendChild(gltf.scene); // Append the loaded model to the viewer
+                console.log("3D model loaded:", gltf);
+            }, undefined, function(error) {
+                console.error('An error occurred while loading the model:', error);
+            });
+        }
+
+    </script>
+</body>
+</html>
